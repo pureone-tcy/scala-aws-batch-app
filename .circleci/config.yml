@@ -13,7 +13,7 @@ jobs:
         key: sbt-cache
     - setup_remote_docker
     - run:
-        name: Docker login
+        name: SBT Install
         command: |
           apt update && apt install -y curl
           curl -L -o sbt-$SBT_VERSION.deb https://dl.bintray.com/sbt/debian/sbt-$SBT_VERSION.deb
@@ -23,12 +23,15 @@ jobs:
           apt-get install -y sbt python-pip git
           pip install awscli
           apt-get clean && apt-get autoclean
-    # Container ImageをECRへpush
+    - run:
+        name: Compile
+        command: sbt clean update compile
+    - run:
+        name: Docker login
+        command: $(aws ecr get-login --region ap-northeast-1)
     - run:
         name: Publish container image (scala-aws-batch-sample)
-        command: |
-          $(aws ecr get-login --region ap-northeast-1)
-          sbt docker:publish
+        command: sbt docker:publish
 
 workflows:
   version: 2
