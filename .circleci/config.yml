@@ -11,21 +11,21 @@ jobs:
     - checkout
     - restore_cache:
         key: sbt-cache
-    - setup_remote_docker
-    - run:
-        name: SBT Install
-        command: |
-          sudo apt-get install -y \
-          python \
-          python-pip \
-          && sudo pip install awscli \
-         && $(aws ecr get-login --region ap-northeast-1 --no-include-email)
+
     - run:
         name: Compile
         command: sbt clean update compile
+
+    - setup_remote_docker
     - run:
         name: Docker login
-        command: $(aws ecr get-login --region ap-northeast-1)
+        command: |
+          sudo apt-get install -y \
+            python \
+            python-pip \
+          && sudo pip install awscli \
+          && $(aws ecr get-login --region ap-northeast-1 --no-include-email)
+
     - run:
         name: Publish container image (scala-aws-batch-sample)
         command: sbt docker:publish
