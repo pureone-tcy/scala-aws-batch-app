@@ -1,0 +1,5 @@
+.idea/
+target/
+project/target/
+terraform/.terraform/
+terraform/terraform.tfvars

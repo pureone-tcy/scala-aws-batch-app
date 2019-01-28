@@ -1,0 +1,32 @@
+version: 2
+
+jobs:
+  deploy:
+    working_directory: ~/scala-aws-batch-sample
+    docker:
+    - image: openjdk:8
+    environment:
+      SBT_VERSION: 1.2.8
+    steps:
+    - checkout
+    - restore_cache:
+        key: sbt-cache
+    - setup_remote_docker
+    - run:
+        name: Docker login
+        command: |
+          sudo apt-get install -y \
+            python \
+            python-pip \
+          && sudo pip install awscli \
+          && $(aws ecr get-login --region ap-northeast-1 --no-include-email)
+    # Container ImageをECRへpush
+    - run:
+        name: Publish container image (scala-aws-batch-sample)
+        command: sbt docker:publish
+
+workflows:
+  version: 2
+  main:
+    jobs:
+      - deploy
